@@ -1,0 +1,203 @@
+
+
+================================================================
+== Synthesis Summary Report of 'fir_base'
+================================================================
++ General Information: 
+    * Date:           Sat Dec 28 14:56:30 2024
+    * Version:        2024.2 (Build 5238294 on Nov  8 2024)
+    * Project:        fir_filter_vitis
+    * Solution:       hls (Vivado IP Flow Target)
+    * Product family: zynq
+    * Target device:  xc7z020-clg400-1
+    
+
++ Performance & Resource Estimates: 
+    
+    PS: '+' for module; 'o' for loop; '*' for dataflow
+    +----------------------------------------+------+-------+---------+-----------+----------+---------+------+----------+---------+--------+-----------+-----------+-----+
+    |                 Modules                | Issue|       | Latency |  Latency  | Iteration|         | Trip |          |         |        |           |           |     |
+    |                 & Loops                | Type | Slack | (cycles)|    (ns)   |  Latency | Interval| Count| Pipelined|  BRAM   |   DSP  |     FF    |    LUT    | URAM|
+    +----------------------------------------+------+-------+---------+-----------+----------+---------+------+----------+---------+--------+-----------+-----------+-----+
+    |+ fir_base                              |     -|   0.00|    10926|  2.185e+05|         -|    10927|     -|        no|   7 (2%)|  6 (2%)|  1729 (1%)|  1942 (3%)|    -|
+    | + fir_base_Pipeline_CO_EFFICIENTS      |     -|   0.00|      102|  2.040e+03|         -|      102|     -|        no|        -|       -|   59 (~0%)|   77 (~0%)|    -|
+    |  o CO_EFFICIENTS                       |     -|  14.60|      100|  2.000e+03|         3|        1|    99|       yes|        -|       -|          -|          -|    -|
+    | o SWEEP                                |     -|  14.60|    10800|  2.160e+05|       108|        -|   100|        no|        -|       -|          -|          -|    -|
+    |  + fir_base_Pipeline_SHIFT_ACCUMULATE  |     -|   2.84|      102|  2.040e+03|         -|      102|     -|        no|  2 (~0%)|  3 (1%)|  119 (~0%)|  188 (~0%)|    -|
+    |   o SHIFT_ACCUMULATE                   |     -|  14.60|      100|  2.000e+03|         3|        1|    99|       yes|        -|       -|          -|          -|    -|
+    +----------------------------------------+------+-------+---------+-----------+----------+---------+------+----------+---------+--------+-----------+-----------+-----+
+
+
+================================================================
+== HW Interfaces
+================================================================
+* M_AXI
++------------+------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+-------------------+
+| Interface  | Read/Write | Data Width | Address Width | Latency | Offset | Register | Max Widen | Max Read     | Max Write    | Num Read    | Num Write   | Resource Estimate |
+|            |            | (SW->HW)   |               |         |        |          | Bitwidth  | Burst Length | Burst Length | Outstanding | Outstanding |                   |
++------------+------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+-------------------+
+| m_axi_gmem | READ_WRITE | 32 -> 32   | 64            | 0       | slave  | 0        | 0         | 16           | 16           | 16          | 16          | BRAM=4            |
++------------+------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+-------------------+
+
+* S_AXILITE Interfaces
++------------+------------+---------------+--------+----------+
+| Interface  | Data Width | Address Width | Offset | Register |
++------------+------------+---------------+--------+----------+
+| s_axi_CTRL | 32         | 6             | 16     | 0        |
++------------+------------+---------------+--------+----------+
+
+* S_AXILITE Registers
++------------+----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+| Interface  | Register | Offset | Width | Access | Description                      | Bit Fields                                                           |
++------------+----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+| s_axi_CTRL | CTRL     | 0x00   | 32    | RW     | Control signals                  | 0=AP_START 1=AP_DONE 2=AP_IDLE 3=AP_READY 7=AUTO_RESTART 9=INTERRUPT |
+| s_axi_CTRL | GIER     | 0x04   | 32    | RW     | Global Interrupt Enable Register | 0=Enable                                                             |
+| s_axi_CTRL | IP_IER   | 0x08   | 32    | RW     | IP Interrupt Enable Register     | 0=CHAN0_INT_EN 1=CHAN1_INT_EN                                        |
+| s_axi_CTRL | IP_ISR   | 0x0c   | 32    | RW     | IP Interrupt Status Register     | 0=CHAN0_INT_ST 1=CHAN1_INT_ST                                        |
+| s_axi_CTRL | y_1      | 0x10   | 32    | W      | Data signal of y                 |                                                                      |
+| s_axi_CTRL | y_2      | 0x14   | 32    | W      | Data signal of y                 |                                                                      |
+| s_axi_CTRL | x_1      | 0x1c   | 32    | W      | Data signal of x                 |                                                                      |
+| s_axi_CTRL | x_2      | 0x20   | 32    | W      | Data signal of x                 |                                                                      |
+| s_axi_CTRL | length_r | 0x28   | 32    | W      | Data signal of length_r          |                                                                      |
+| s_axi_CTRL | coeff_1  | 0x30   | 32    | W      | Data signal of coeff             |                                                                      |
+| s_axi_CTRL | coeff_2  | 0x34   | 32    | W      | Data signal of coeff             |                                                                      |
++------------+----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+
+* TOP LEVEL CONTROL
++-----------+------------+-----------+
+| Interface | Type       | Ports     |
++-----------+------------+-----------+
+| ap_clk    | clock      | ap_clk    |
+| ap_rst_n  | reset      | ap_rst_n  |
+| interrupt | interrupt  | interrupt |
+| ap_ctrl   | ap_ctrl_hs |           |
++-----------+------------+-----------+
+
+
+================================================================
+== SW I/O Information
+================================================================
+* Top Function Arguments
++----------+-----------+----------+
+| Argument | Direction | Datatype |
++----------+-----------+----------+
+| y        | inout     | int*     |
+| x        | inout     | int*     |
+| length   | in        | int      |
+| coeff    | inout     | int*     |
++----------+-----------+----------+
+
+* SW-to-HW Mapping
++----------+--------------+-----------+----------+------------------------------------+
+| Argument | HW Interface | HW Type   | HW Usage | HW Info                            |
++----------+--------------+-----------+----------+------------------------------------+
+| y        | m_axi_gmem   | interface |          | channel=0                          |
+| y        | s_axi_CTRL   | register  | offset   | name=y_1 offset=0x10 range=32      |
+| y        | s_axi_CTRL   | register  | offset   | name=y_2 offset=0x14 range=32      |
+| x        | m_axi_gmem   | interface |          | channel=0                          |
+| x        | s_axi_CTRL   | register  | offset   | name=x_1 offset=0x1c range=32      |
+| x        | s_axi_CTRL   | register  | offset   | name=x_2 offset=0x20 range=32      |
+| length   | s_axi_CTRL   | register  |          | name=length_r offset=0x28 range=32 |
+| coeff    | m_axi_gmem   | interface |          | channel=0                          |
+| coeff    | s_axi_CTRL   | register  | offset   | name=coeff_1 offset=0x30 range=32  |
+| coeff    | s_axi_CTRL   | register  | offset   | name=coeff_2 offset=0x34 range=32  |
++----------+--------------+-----------+----------+------------------------------------+
+
+
+================================================================
+== M_AXI Burst Information
+================================================================
+ Note: All burst requests might be further partitioned into multiple requests during RTL generation based on max_read_burst_length or max_write_burst_length settings.
+
+* Inferred Burst Summary
++--------------+-----------+----------+-------+---------------+-------------------+
+| HW Interface | Direction | Length   | Width | Loop          | Loop Location     |
++--------------+-----------+----------+-------+---------------+-------------------+
+| m_axi_gmem   | read      | 99       | 32    | CO_EFFICIENTS | fir_base.cpp:15:5 |
+| m_axi_gmem   | write     | variable | 32    | SWEEP         | fir_base.cpp:22:5 |
+| m_axi_gmem   | read      | variable | 32    | SWEEP         | fir_base.cpp:22:5 |
++--------------+-----------+----------+-------+---------------+-------------------+
+
+* All M_AXI Variable Accesses
++--------------+----------+--------------------+-----------+--------------+----------+---------------+-------------------+------------+-------------------------------------------------------------------------------------------------------+
+| HW Interface | Variable | Access Location    | Direction | Burst Status | Length   | Loop          | Loop Location     | Resolution | Problem                                                                                               |
++--------------+----------+--------------------+-----------+--------------+----------+---------------+-------------------+------------+-------------------------------------------------------------------------------------------------------+
+| m_axi_gmem   | coeff    | fir_base.cpp:17:10 | read      | Widen Fail   |          | CO_EFFICIENTS | fir_base.cpp:15:5 | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | coeff    | fir_base.cpp:17:10 | read      | Inferred     | 99       | CO_EFFICIENTS | fir_base.cpp:15:5 |            |                                                                                                       |
+| m_axi_gmem   | x        | fir_base.cpp:26:32 | read      | Widen Fail   |          | SWEEP         | fir_base.cpp:22:5 | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | x        | fir_base.cpp:26:32 | read      | Inferred     | variable | SWEEP         | fir_base.cpp:22:5 |            |                                                                                                       |
+| m_axi_gmem   | y        | fir_base.cpp:41:14 | write     | Widen Fail   |          | SWEEP         | fir_base.cpp:22:5 | 214-353    | Could not widen since type i32 size is greater than or equal to the max_widen_bitwidth threshold of 0 |
+| m_axi_gmem   | y        | fir_base.cpp:41:14 | write     | Inferred     | variable | SWEEP         | fir_base.cpp:22:5 |            |                                                                                                       |
++--------------+----------+--------------------+-----------+--------------+----------+---------------+-------------------+------------+-------------------------------------------------------------------------------------------------------+
+
+    * Resolution URL: docs.xilinx.com/access/sources/dita/topic?Doc_Version=2024.2%20English&url=ug1448-hls-guidance&resourceid=XXX-YYY.html (replace XXX-YYY with column value)
+
+================================================================
+== Bind Op Report
+================================================================
++---------------------------------------+-----+--------+-------------+--------+----------+---------+
+| Name                                  | DSP | Pragma | Variable    | Op     | Impl     | Latency |
++---------------------------------------+-----+--------+-------------+--------+----------+---------+
+| + fir_base                            | 6   |        |             |        |          |         |
+|   icmp_ln22_fu_266_p2                 |     |        | icmp_ln22   | setgt  | auto     | 0       |
+|   empty_21_fu_271_p3                  |     |        | empty_21    | select | auto_sel | 0       |
+|   icmp_ln22_1_fu_290_p2               |     |        | icmp_ln22_1 | setlt  | auto     | 0       |
+|   add_ln22_fu_295_p2                  |     |        | add_ln22    | add    | fabric   | 0       |
+|   mul_32s_32s_32_1_1_U11              | 3   |        | mul         | mul    | auto     | 0       |
+|  + fir_base_Pipeline_CO_EFFICIENTS    | 0   |        |             |        |          |         |
+|    icmp_ln15_fu_90_p2                 |     |        | icmp_ln15   | seteq  | auto     | 0       |
+|    add_ln15_fu_96_p2                  |     |        | add_ln15    | add    | fabric   | 0       |
+|  + fir_base_Pipeline_SHIFT_ACCUMULATE | 3   |        |             |        |          |         |
+|    icmp_ln31_fu_161_p2                |     |        | icmp_ln31   | seteq  | auto     | 0       |
+|    add_ln36_fu_167_p2                 |     |        | add_ln36    | add    | fabric   | 0       |
+|    mul_32s_32s_32_1_1_U4              | 3   |        | mul_ln37    | mul    | auto     | 0       |
+|    acc_1_fu_192_p2                    |     |        | acc_1       | add    | fabric   | 0       |
+|    add_ln30_fu_178_p2                 |     |        | add_ln30    | add    | fabric   | 0       |
++---------------------------------------+-----+--------+-------------+--------+----------+---------+
+
+
+================================================================
+== Storage Report
+================================================================
++---------------------------------------+-----------+-----------+------+------+--------+-----------+------+---------+------------------+
+| Name                                  | Usage     | Type      | BRAM | URAM | Pragma | Variable  | Impl | Latency | Bitwidth, Depth, |
+|                                       |           |           |      |      |        |           |      |         | Banks            |
++---------------------------------------+-----------+-----------+------+------+--------+-----------+------+---------+------------------+
+| + fir_base                            |           |           | 7    | 0    |        |           |      |         |                  |
+|   CTRL_s_axi_U                        | interface | s_axilite |      |      |        |           |      |         |                  |
+|   gmem_m_axi_U                        | interface | m_axi     | 4    |      |        |           |      |         |                  |
+|   co_U                                | ram_1p    |           | 1    |      |        | co        | auto | 1       | 32, 99, 1        |
+|  + fir_base_Pipeline_SHIFT_ACCUMULATE |           |           | 2    | 0    |        |           |      |         |                  |
+|    shift_reg_U                        | ram_t2p   |           | 2    |      |        | shift_reg | auto | 1       | 32, 99, 1        |
++---------------------------------------+-----------+-----------+------+------+--------+-----------+------+---------+------------------+
+
+
+================================================================
+== Pragma Report
+================================================================
+* Valid Pragma Syntax
++-----------------+----------------------------------------+--------------------------------------+
+| Type            | Options                                | Location                             |
++-----------------+----------------------------------------+--------------------------------------+
+| interface       | m_axi depth=100 port=y                 | fir_base.cpp:4 in fir_base, y        |
+| interface       | m_axi depth=100 port=x                 | fir_base.cpp:5 in fir_base, x        |
+| interface       | m_axi depth=99 port=coeff              | fir_base.cpp:6 in fir_base, coeff    |
+| interface       | s_axilite port=length bundle=CTRL      | fir_base.cpp:7 in fir_base, length   |
+| interface       | s_axilite port=return bundle=CTRL      | fir_base.cpp:8 in fir_base, return   |
+| pipeline        | II=1                                   | fir_base.cpp:16 in fir_base          |
+| loop_tripcount  | max=100 min=100                        | fir_base.cpp:23 in fir_base          |
+| interface       | m_axi depth=100 port=y                 | fir_opt.cpp:4 in fir_opt, y          |
+| interface       | m_axi depth=100 port=x                 | fir_opt.cpp:5 in fir_opt, x          |
+| interface       | m_axi depth=99 port=coeff              | fir_opt.cpp:6 in fir_opt, coeff      |
+| interface       | s_axilite port=length bundle=CTRL      | fir_opt.cpp:7 in fir_opt, length     |
+| interface       | s_axilite port=return bundle=CTRL      | fir_opt.cpp:8 in fir_opt, return     |
+| array_partition | variable=co dim=0 type=complete        | fir_opt.cpp:14 in fir_opt, co        |
+| array_partition | variable=shift_reg dim=0 type=complete | fir_opt.cpp:15 in fir_opt, shift_reg |
+| pipeline        | II=1                                   | fir_opt.cpp:20 in fir_opt            |
+| loop_tripcount  | max=100 min=100                        | fir_opt.cpp:27 in fir_opt            |
+| pipeline        | II=2                                   | fir_opt.cpp:28 in fir_opt            |
+| unroll          |                                        | fir_opt.cpp:34 in fir_opt            |
+| unroll          |                                        | fir_opt.cpp:42 in fir_opt            |
++-----------------+----------------------------------------+--------------------------------------+
+
+
